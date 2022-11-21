@@ -1,0 +1,241 @@
+ 
+Modify Your project settings.py
+*******************************
+1.DEBUG = False
+
+2. ALLOWED_HOSTS = ['add IP here']
+
+
+3.# STATIC_ROOT = BASE_DIR / 'static'
+4.STATICFILES_DIR = BASE_DIR / 'home/static'
+
+
+Oder compeleted page
+*********************
+5Edit the call back url to reflect the IP address
+
+
+In The Terminal in vscode
+*************************
+6pip freeze > requirements.txt
+
+
+
+Push project to Github
+***********************
+7git push...
+
+
+
+Connect To Ubuntu server setup
+****************************
+1. sudo apt update
+2. sudo apt upgrade -y
+   (if required run sudo reboot)
+3. sudo apt install python3-venv -y
+4. python3 -m venv venv
+5. source venv/bin/activate
+6. sudo apt install python3-pip -y
+
+
+
+ 
+
+
+Clone project in ubuntu (git bash)
+*********************************
+1. git clone https://github.com/Auracule/market.git
+2. cd market
+3. pip install -r requirements.txt
+
+install nginx and gunicorn
+**************************
+4. sudo apt install nginx -y
+5. pip install gunicorn
+6. sudo nano /etc/nginx/nginx.conf (set user value to ubuntu)
+go to your instance, copy your IP to view the nginx page
+
+
+Install supervisor and configure gunicorn
+*****************************************
+1. sudo apt install supervisor
+2. cd /etc/supervisor/conf.d/
+3. sudo touch gunicorn.conf
+4. sudo nano gunicorn.conf
+
+
+5.
+
+[program:gunicorn]
+
+directory=/home/ubuntu/market
+command=/home/ubuntu/venv/bin/gunicorn --workers 3 --bind unix:/home/ubuntu/market/app.sock market.wsgi:application
+autostart=true
+autorestart=true
+stderr_logfile=/var/log/gunicorn/gunicorn.err.log
+stdout_logfile=/var/log/gunicorn/gunicorn.out.log
+
+[group:guni]
+programs:gunicorn 
+
+
+
+
+7. press Ctrl + o,  enter, Ctrl + x to save and return to terminal
+
+
+
+
+Create the logfile and django.conf files
+****************************************
+1. sudo mkdir /var/log/gunicorn
+
+2. sudo supervisorctl reread 
+
+3. sudo supervisorctl update
+
+4. sudo supervisorctl status
+
+5. cd
+
+6. cd /etc/nginx/sites-enabled
+
+7. sudo rm -r default
+
+8. sudo nano /etc/nginx/nginx.conf
+	update user as ubuntu
+
+9. cd /etc/nginx/sites-available
+
+10. sudo rm -r default
+
+11. sudo touch market.conf
+
+12. sudo nano market.conf
+
+
+Server, media and static files serving
+***************************************
+
+12.
+
+server{
+        listen 80;
+        server_name 54.167.215.67;
+	client_max_body_size 100M;
+
+        location / {
+               	include proxy_params;
+                proxy_pass http://unix:/home/ubuntu/market/app.sock;
+        }
+
+	location /static/ {
+                autoindex on;
+                alias /home/ubuntu/market/static/;
+        }
+
+
+ 	location /media/ {
+                autoindex on;
+                alias /home/ubuntu/market/media/;
+        }
+
+}
+
+
+13. press Ctrl + o,  enter, Ctrl + x to save and return to terminal
+
+
+
+14. sudo ln market.conf /etc/nginx/sites-enabled/
+
+15. sudo nginx -t
+
+16. cd
+
+17. cd market/
+
+18. python manage.py collectstatic
+
+19. sudo nginx -t
+
+20. sudo service nginx restart
+
+
+
+
+
+
+
+
+Configure Database with Postgresql
+**********************************
+
+- open the settings.py file and add postgres settings:
+
+1. in settings file add the db setting below
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'cyberdevdb',
+        'USER': 'cyberdevadmin',
+        'PASSWORD': 'admin1234',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
+    }
+}
+
+
+
+
+Install postgres and other python dev tools: 
+
+2.  sudo apt install python3-dev libpq-dev postgresql postgresql-contrib
+
+
+
+postgres user setup 
+----------------------
+- after installation, connect with postgres with the default user: postgres.
+	
+
+3.   sudo -u postgres psql
+   
+- create a database
+ 
+4.   CREATE DATABASE crownedgedb;
+
+- create a db user: 
+
+5.   CREATE USER crownedgeadmin WITH PASSWORD 'admin1234';
+
+
+
+- give the user access to the DB
+
+6.   GRANT ALL PRIVILEGES ON DATABASE crownedgedb TO crownedgeadmin 
+
+Quit out of Postgres
+7.  \q
+
+
+
+8. python manage.py migrate
+9. python manage.py createsuperuser
+10. sudo service nginx restart
+
+
+
+
+How to update deployed project on ubuntu cloud server
+"""""""""""""""""""""""""""""""""""""""""""""
+1. ssh -i "crownege.pem" ubuntu@ec2-52-201-248-155.compute-1.amazonaws.com
+2. source venv/bin/activate
+3. cd foodlum
+4. git pull
+5. sudo service supervisor restart
+6. sudo service nginx restart
+
+	

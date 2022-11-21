@@ -1,0 +1,67 @@
+
+{% extends 'base.html' %}
+
+{% block title %} | Callback{% endblock title %}
+
+{% block header %}   {% include 'header.html' %}   {% endblock header %}
+
+{% block carousel %}   {% include 'carousel.html' %}     {% endblock carousel %}     
+
+{% block content %}
+
+
+
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col-10 col-sm-10 col-md-3 col-lg-3 col-xl-3"></div>
+        <div class="col-10 col-sm-10 col-md-6 col-lg-6 col-xl-6">
+          <h2 class="names">Dear {{profile.first_name}} {{profile.last_name}},</h2>
+          <h5>Your purchase of new {{trolley.title_g}} from our brand was successful. 
+            we look forward to doing more business with you. </h5>
+            <p>Thank you for your patronage....</p>
+            <div class="container">
+                <div class="container">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col"></th>
+                          <th scope="col">Details</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th scope="row">Recipient Name</th>
+                          <td>{{profile.first_name}} {{profile.last_name}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Product</th>
+                          <td>{{trolley.product.title_r}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Transaction Code</th>
+                          <td>{{account.pay_code}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Quantity</th>
+                          <td colspan="2">{{trolley.quantity}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Amount</th>
+                          <td colspan="2">{{account.amount}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Date</th>
+                          <td colspan="2">{{payment.payment_date}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+            </div>
+        </div>
+        <div class="col-10 col-sm-10 col-md-3 col-lg-3 col-xl-3"></div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+{% block footer %}   {% include 'footer.html' %}   {% endblock footer %}
